@@ -26,7 +26,7 @@ export default function RoomJoin() {
   return (
     <div style={p.page}>
       {/* Interactive particle background */}
-      <ForceField hue={234} saturation={90} spacing={14} />
+      <ForceField hue={234} saturation={90} spacing={19} />
 
       <div style={p.card}>
         {/* Logo */}

@@ -25,7 +25,7 @@ export default function Login() {
   return (
     <div style={s.page}>
       {/* Interactive particle background */}
-      <ForceField hue={234} saturation={90} spacing={14} />
+      <ForceField hue={234} saturation={90} spacing={19} />
 
       {/* ── LEFT PANEL ─────────────────────────────────────── */}
       <div style={s.leftPanel}>

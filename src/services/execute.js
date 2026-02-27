@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 export async function executeCode({ language, code, stdin, args }) {
   const token = localStorage.getItem("token");
