@@ -44,6 +44,7 @@ body {
   color: var(--text);
   font-family: 'Space Grotesk', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  zoom: 1.1;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────── */
