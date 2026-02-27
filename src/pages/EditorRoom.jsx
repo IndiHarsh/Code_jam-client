@@ -74,6 +74,9 @@ export default function EditorRoom() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [copied, setCopied] = useState(false);
   const [settings, setSettings] = useState({ fontSize: 14, tabSize: 2, wordWrap: true, minimap: true });
+  const [fsWarning, setFsWarning] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fsWarnTimer = useRef(null);
 
   const colRef = useRef(null);
   useMonitor(roomId, true);
@@ -125,6 +128,40 @@ export default function EditorRoom() {
     window.addEventListener("mousemove", mv);
     window.addEventListener("mouseup", up);
     return () => { window.removeEventListener("mousemove", mv); window.removeEventListener("mouseup", up); };
+  }, []);
+
+  /* ── Force fullscreen on room entry ─────────────────────── */
+  useEffect(() => {
+    const el = document.documentElement;
+    const enter = () => {
+      if (el.requestFullscreen) el.requestFullscreen().catch(() => { });
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    };
+    // Browsers require a user gesture before allowing fullscreen.
+    // We attempt immediately (works if navigated via a click) and
+    // also listen for the first interaction as a fallback.
+    enter();
+    window.addEventListener("click", enter, { once: true });
+
+    // Show warning toast when user exits fullscreen manually
+    function onFsChange() {
+      if (!document.fullscreenElement) {
+        clearTimeout(fsWarnTimer.current);
+        setFsWarning(true);
+        setIsFullscreen(false);
+        fsWarnTimer.current = setTimeout(() => setFsWarning(false), 6000);
+      } else {
+        setIsFullscreen(true);
+      }
+    }
+    document.addEventListener("fullscreenchange", onFsChange);
+
+    return () => {
+      window.removeEventListener("click", enter);
+      document.removeEventListener("fullscreenchange", onFsChange);
+      clearTimeout(fsWarnTimer.current);
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
+    };
   }, []);
 
   /* ── Helpers ─────────────────────────────────────────────── */
@@ -252,13 +289,35 @@ export default function EditorRoom() {
             })()}
           </div>
 
+          {/* Fullscreen toggle */}
+          <button
+            className="fs-toggle-btn"
+            onClick={() => {
+              if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => { });
+              } else {
+                document.documentElement.requestFullscreen().catch(() => { });
+              }
+            }}
+            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18, pointerEvents: "none" }}>
+              {isFullscreen ? "fullscreen_exit" : "fullscreen"}
+            </span>
+          </button>
+
           {/* Language selector */}
           <select style={T.langSel} value={language} onChange={e => setLanguage(e.target.value)}>
             {ALL_LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
           </select>
 
           {/* Run */}
-          <button style={{ ...T.runBtn, opacity: isRunning ? 0.7 : 1 }} onClick={handleRun} disabled={isRunning}>
+          <button
+            className="run-btn"
+            style={{ ...T.runBtn, opacity: isRunning ? 0.7 : 1 }}
+            onClick={handleRun}
+            disabled={isRunning}
+          >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>play_arrow</span>
             {isRunning ? "Running…" : "Run"}
           </button>
@@ -380,6 +439,17 @@ export default function EditorRoom() {
         </div>
       </div>
 
+      {/* ══ FULLSCREEN EXIT WARNING TOAST ═══════════════════ */}
+      {fsWarning && (
+        <div style={T.fsWarn}>
+          <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>warning</span>
+          <div>
+            <div style={{ fontWeight: 700, marginBottom: 2 }}>⚠️ Fullscreen Exited</div>
+            <div style={{ fontSize: "0.78rem", opacity: 0.85 }}>This action has been recorded and the admin has been alerted.</div>
+          </div>
+        </div>
+      )}
+
       {/* ══ STATUS BAR ══════════════════════════════════════ */}
       <footer style={T.statusBar}>
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -397,6 +467,31 @@ export default function EditorRoom() {
         select option { background: #0d0d1f; }
         input[type=text]::placeholder { color: #334155; }
         .wb-tbr:hover { background: rgba(255,255,255,0.05) !important; }
+        @keyframes fs-warn-in {
+          from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0)      scale(1);    }
+        }
+        /* Fullscreen toggle button */
+        .fs-toggle-btn {
+          background: transparent; border: 1px solid #323267; border-radius: 8px;
+          color: #94a3b8; cursor: pointer; display: flex; align-items: center;
+          justify-content: center; width: 34px; height: 34px; flex-shrink: 0;
+          transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s, color 0.2s;
+        }
+        .fs-toggle-btn:hover {
+          background: rgba(19,19,236,0.08); border-color: rgba(19,19,236,0.6); color: #a5b4fc;
+          transform: scale(1.08);
+          box-shadow: 0 0 0 3px rgba(19,19,236,0.1), 0 0 16px 2px rgba(19,19,236,0.3), 0 0 32px 4px rgba(79,70,229,0.15);
+        }
+        .fs-toggle-btn:active { transform: scale(0.95); }
+        /* Run button hover glow */
+        .run-btn { transition: background 0.2s, transform 0.15s, box-shadow 0.2s, opacity 0.15s !important; }
+        .run-btn:hover:not(:disabled) {
+          background: #2525f0 !important;
+          transform: scale(1.04);
+          box-shadow: 0 0 0 4px rgba(19,19,236,0.12), 0 0 18px 3px rgba(19,19,236,0.45), 0 0 40px 6px rgba(79,70,229,0.2), 0 6px 24px rgba(19,19,236,0.4) !important;
+        }
+        .run-btn:active:not(:disabled) { transform: scale(0.97); }
       `}</style>
     </div>
   );
@@ -536,5 +631,17 @@ const T = {
     display: "flex", alignItems: "center", gap: 8,
     padding: "0.4rem 0.75rem", cursor: "pointer",
     transition: "background 0.1s"
+  },
+
+  // Fullscreen exit warning toast
+  fsWarn: {
+    position: "fixed", top: 18, left: "50%", transform: "translateX(-50%)",
+    zIndex: 99999, display: "flex", alignItems: "center", gap: "0.75rem",
+    background: "rgba(220,38,38,0.15)", backdropFilter: "blur(12px)",
+    border: "1px solid rgba(220,38,38,0.5)", borderRadius: 12,
+    padding: "0.75rem 1.25rem", color: "#fca5a5",
+    boxShadow: "0 8px 32px rgba(220,38,38,0.25), 0 0 0 1px rgba(220,38,38,0.2)",
+    animation: "fs-warn-in 0.3s cubic-bezier(0.34,1.56,0.64,1) both",
+    maxWidth: 420, width: "max-content",
   },
 };

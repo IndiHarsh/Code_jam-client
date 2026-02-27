@@ -103,17 +103,85 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
-  box-shadow: 0 4px 20px rgba(19, 19, 236, 0.25);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(19, 19, 236, 0.3);
 }
 
 .cj-btn-primary:hover {
   background: #2525f0;
+  transform: scale(1.02);
+  box-shadow:
+    0 0 0 4px rgba(19, 19, 236, 0.12),
+    0 0 18px 3px rgba(19, 19, 236, 0.45),
+    0 0 40px 6px rgba(79, 70, 229, 0.2),
+    0 6px 24px rgba(19, 19, 236, 0.4);
 }
 
 .cj-btn-primary:active {
-  transform: scale(0.99);
+  transform: scale(0.98);
+  box-shadow: 0 4px 20px rgba(19, 19, 236, 0.3);
 }
+
+/* Ghost / outline button — secondary actions */
+.cj-btn-ghost {
+  width: 100%;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.cj-btn-ghost:hover {
+  background: rgba(19, 19, 236, 0.06);
+  border-color: rgba(19, 19, 236, 0.6);
+  transform: scale(1.02);
+  box-shadow:
+    0 0 0 3px rgba(19, 19, 236, 0.1),
+    0 0 16px 2px rgba(19, 19, 236, 0.3),
+    0 0 32px 4px rgba(79, 70, 229, 0.15);
+}
+
+.cj-btn-ghost:active {
+  transform: scale(0.98);
+}
+
+/* Social icon buttons (square) */
+.cj-btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.cj-btn-social:hover {
+  background: rgba(19, 19, 236, 0.08);
+  border-color: rgba(19, 19, 236, 0.5);
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 3px rgba(19, 19, 236, 0.1),
+    0 0 14px 2px rgba(19, 19, 236, 0.3),
+    0 0 28px 4px rgba(79, 70, 229, 0.15);
+}
+
+.cj-btn-social:active {
+  transform: scale(0.96);
+}
+
 
 .cj-divider {
   position: relative;

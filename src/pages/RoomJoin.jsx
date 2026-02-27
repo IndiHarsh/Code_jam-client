@@ -68,7 +68,7 @@ export default function RoomJoin() {
         <div className="cj-divider"><span>or</span></div>
 
         {/* Create button */}
-        <button style={p.createBtn} onClick={createRoom}>
+        <button className="cj-btn-ghost" onClick={createRoom}>
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add_circle</span>
           <span>Create New Room</span>
         </button>
