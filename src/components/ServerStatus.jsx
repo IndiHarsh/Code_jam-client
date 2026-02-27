@@ -14,12 +14,13 @@ export default function ServerStatus() {
         try {
             const ctrl = new AbortController();
             const id = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-            const res = await fetch(`${SERVER}/health`, { signal: ctrl.signal });
+            // no-cors: browser won't expose the response body but WILL resolve
+            // if the server is reachable, and throw if it's down/timed out.
+            await fetch(`${SERVER}/health`, { signal: ctrl.signal, mode: "no-cors" });
             clearTimeout(id);
-            if (res.ok) setOffline(false);
-            else setOffline(true);
+            setOffline(false); // server reachable → hide banner
         } catch {
-            setOffline(true);
+            setOffline(true);  // network error / timeout → show banner
         } finally {
             setChecking(false);
         }
